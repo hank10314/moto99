@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "build": "npm --prefix frontend ci && npm --prefix frontend run build && mkdir -p dist && cp -R frontend/dist/. dist/",
+    "build": "npm --prefix frontend ci && npm --prefix frontend run build && rm -rf dist && mkdir -p dist && cp -R frontend/dist/. dist/",
     "dev": "npm --prefix frontend run dev",
     "preview": "npm --prefix frontend run preview"
   }

@@ -48,17 +48,20 @@ GitHub repository
   -> Google Sheets
 ```
 
-Cloudflare Pages 設定：
+Cloudflare Pages / Workers 設定：
 
-方案 A：Cloudflare Root directory 留空，使用根目錄 build script。
+方案 A：目前專案支援 Cloudflare 從 repo 根目錄 build，並使用 `wrangler deploy` 部署靜態資源。
 
 ```text
 Framework preset: Vite
 Root directory: 
 Build command: npm run build
 Build output directory: dist
+Deploy command: npx wrangler deploy
 Production branch: main
 ```
+
+SPA fallback 由根目錄 `wrangler.jsonc` 的 `assets.not_found_handling` 處理。
 
 方案 B：直接指定前端目錄。
 
@@ -67,18 +70,13 @@ Framework preset: Vite
 Root directory: frontend
 Build command: npm run build
 Build output directory: dist
+Deploy command: 
 Production branch: main
 ```
 
 若 Cloudflare log 出現 `Could not read package.json` 且路徑是 `/opt/buildhome/repo/package.json`，代表 Cloudflare 正在 repo 根目錄執行 build。此時請使用方案 A，或把 Root directory 改成 `frontend`。
 
-本專案已在 `frontend/public/_redirects` 加入 SPA fallback：
-
-```text
-/* /index.html 200
-```
-
-因此使用 Vue Router 的路徑，例如 `/records`、`/settings`，在 Cloudflare Pages 重新整理時不會 404。
+若 Cloudflare log 出現 `Invalid _redirects configuration` 或 `Infinite loop detected`，代表目前走的是 `wrangler deploy` 靜態資源部署流程；此流程不使用 Pages `_redirects` 做 SPA fallback，請保留 `wrangler.jsonc` 設定。
 
 第一次推到 GitHub：
 
