@@ -50,6 +50,18 @@ GitHub repository
 
 Cloudflare Pages 設定：
 
+方案 A：Cloudflare Root directory 留空，使用根目錄 build script。
+
+```text
+Framework preset: Vite
+Root directory: 
+Build command: npm run build
+Build output directory: dist
+Production branch: main
+```
+
+方案 B：直接指定前端目錄。
+
 ```text
 Framework preset: Vite
 Root directory: frontend
@@ -57,6 +69,8 @@ Build command: npm run build
 Build output directory: dist
 Production branch: main
 ```
+
+若 Cloudflare log 出現 `Could not read package.json` 且路徑是 `/opt/buildhome/repo/package.json`，代表 Cloudflare 正在 repo 根目錄執行 build。此時請使用方案 A，或把 Root directory 改成 `frontend`。
 
 本專案已在 `frontend/public/_redirects` 加入 SPA fallback：
 
