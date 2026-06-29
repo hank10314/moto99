@@ -68,13 +68,21 @@ function getSheet(sheetName) {
   return sheet;
 }
 
-function getHeaders(sheetName) {
-  return SHEET_SCHEMAS[sheetName];
+function getHeaders(sheetName, sheet) {
+  var schemaHeaders = SHEET_SCHEMAS[sheetName];
+  var targetSheet = sheet || getSheet(sheetName);
+  var lastColumn = Math.max(targetSheet.getLastColumn(), schemaHeaders.length);
+  if (lastColumn < 1) return schemaHeaders;
+  var firstRow = targetSheet.getRange(1, 1, 1, lastColumn).getValues()[0];
+  var sheetHeaders = firstRow.filter(function (value) {
+    return value !== '';
+  });
+  return sheetHeaders.length ? sheetHeaders : schemaHeaders;
 }
 
 function getRows(sheetName) {
   var sheet = getSheet(sheetName);
-  var headers = getHeaders(sheetName);
+  var headers = getHeaders(sheetName, sheet);
   var lastRow = sheet.getLastRow();
   if (lastRow < 2) return [];
   var values = sheet.getRange(2, 1, lastRow - 1, headers.length).getValues();
@@ -93,7 +101,7 @@ function getRows(sheetName) {
 
 function appendRow(sheetName, record) {
   var sheet = getSheet(sheetName);
-  var headers = getHeaders(sheetName);
+  var headers = getHeaders(sheetName, sheet);
   var row = headers.map(function (header) {
     return record[header] === undefined ? '' : record[header];
   });
@@ -103,7 +111,7 @@ function appendRow(sheetName, record) {
 
 function updateRowById(sheetName, idField, idValue, patch) {
   var sheet = getSheet(sheetName);
-  var headers = getHeaders(sheetName);
+  var headers = getHeaders(sheetName, sheet);
   var rows = getRows(sheetName);
   var target = rows.find(function (row) {
     return String(row[idField]) === String(idValue);

@@ -18,11 +18,11 @@ var SHEET_SCHEMAS = {
     'fuel_type',
     'current_odometer',
     'active',
-    'image_url',
     'note',
     'created_at',
     'updated_at',
     'tank_capacity_liters',
+    'image_url',
   ],
   OdometerLogs: [
     'odometer_log_id',
