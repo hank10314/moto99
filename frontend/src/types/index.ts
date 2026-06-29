@@ -20,6 +20,7 @@ export interface Vehicle {
   tank_capacity_liters?: number | '';
   current_odometer: number;
   active: boolean;
+  image_url?: string;
   note?: string;
   created_at?: string;
   updated_at?: string;

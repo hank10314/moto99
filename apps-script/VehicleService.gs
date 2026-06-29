@@ -28,6 +28,7 @@ function createVehicle(payload) {
     tank_capacity_liters: toNumber(payload.tank_capacity_liters, ''),
     current_odometer: odometer,
     active: true,
+    image_url: payload.image_url || '',
     note: payload.note || '',
     created_at: timestamp,
     updated_at: timestamp,
@@ -66,6 +67,7 @@ function updateVehicle(payload) {
       payload.tank_capacity_liters !== undefined ? toNumber(payload.tank_capacity_liters, '') : existing.tank_capacity_liters,
     current_odometer: odometer,
     active: payload.active !== undefined ? toBoolean(payload.active, true) : existing.active,
+    image_url: payload.image_url !== undefined ? payload.image_url : existing.image_url,
     note: payload.note !== undefined ? payload.note : existing.note,
     updated_at: nowIso(),
   });

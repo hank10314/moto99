@@ -2,7 +2,7 @@ var APP_CONFIG = {
   spreadsheetName: 'VehicleMaintenance',
   spreadsheetIdProperty: 'VEHICLE_MAINTENANCE_SPREADSHEET_ID',
   schemaVersionProperty: 'VEHICLE_MAINTENANCE_SCHEMA_VERSION',
-  schemaVersion: '2026-06-28',
+  schemaVersion: '2026-06-29',
   timezone: Session.getScriptTimeZone() || 'Asia/Taipei',
 };
 
@@ -18,6 +18,7 @@ var SHEET_SCHEMAS = {
     'fuel_type',
     'current_odometer',
     'active',
+    'image_url',
     'note',
     'created_at',
     'updated_at',

@@ -12,6 +12,36 @@
     </el-empty>
 
     <template v-else>
+      <section class="vehicle-hero">
+        <div class="vehicle-hero__content">
+          <div>
+            <div class="vehicle-hero__eyebrow">目前車輛</div>
+            <h1>{{ data.vehicle.name }}</h1>
+            <div class="vehicle-hero__meta">
+              <span><el-icon><Van /></el-icon>{{ formatVehicleType(data.vehicle.type) }}</span>
+              <span v-if="data.vehicle.plate_no"><el-icon><Postcard /></el-icon>{{ data.vehicle.plate_no }}</span>
+              <span v-if="data.vehicle.fuel_type"><el-icon><Pouring /></el-icon>{{ formatFuelType(data.vehicle.fuel_type) }}</span>
+            </div>
+          </div>
+          <div class="vehicle-hero__stat">
+            <div>
+              <span class="muted">目前里程</span>
+              <strong>{{ formatKm(data.vehicle.current_odometer) }}</strong>
+            </div>
+            <div>
+              <span class="muted">平均油耗</span>
+              <strong>{{ formatNumber(data.fuel_summary.avg_fuel_consumption_km_l, 1, '-') }} km/L</strong>
+            </div>
+          </div>
+        </div>
+        <div class="vehicle-hero__media">
+          <img v-if="showVehicleImage" :src="data.vehicle.image_url" :alt="data.vehicle.name" @error="vehicleImageFailed = true" />
+          <div v-else class="vehicle-hero__fallback">
+            <el-icon><Van /></el-icon>
+          </div>
+        </div>
+      </section>
+
       <div class="dashboard-command-row">
         <el-button type="primary" :icon="Plus" @click="goNewFuel">新增加油</el-button>
         <el-button type="primary" plain :icon="Tools" @click="goNewMaintenance">新增保養</el-button>
@@ -46,7 +76,7 @@
               <el-button text @click="goRecords('fuel')">全部</el-button>
             </div>
           </template>
-          <el-table :data="fuelPreview" size="small" @row-click="editFuel">
+          <el-table class="desktop-table" :data="fuelPreview" size="small" @row-click="editFuel">
             <el-table-column label="日期" width="110">
               <template #default="{ row }">{{ formatDateOnly(row.date) }}</template>
             </el-table-column>
@@ -60,6 +90,22 @@
               <template #default="{ row }">{{ formatMoney(row.total_price) }}</template>
             </el-table-column>
           </el-table>
+          <div class="mobile-record-list">
+            <div v-if="fuelPreview.length" class="record-card-list">
+              <button v-for="row in fuelPreview" :key="row.fuel_log_id" class="record-card" type="button" @click="editFuel(row)">
+                <span class="record-card__label">加油紀錄</span>
+                <div class="record-card__header">
+                  <div class="record-card__title">{{ formatDateOnly(row.date) }}</div>
+                  <div class="record-card__value">{{ formatMoney(row.total_price) }}</div>
+                </div>
+                <div class="record-card__details">
+                  <span>{{ formatKm(row.odometer_km) }}</span>
+                  <span>{{ formatLiters(row.liters) }}</span>
+                </div>
+              </button>
+            </div>
+            <div v-else class="empty-state">尚無加油紀錄</div>
+          </div>
         </el-card>
 
         <el-card class="table-card" shadow="never">
@@ -69,7 +115,7 @@
               <el-button text @click="goRecords('maintenance')">全部</el-button>
             </div>
           </template>
-          <el-table :data="maintenancePreview" size="small" @row-click="editMaintenance">
+          <el-table class="desktop-table" :data="maintenancePreview" size="small" @row-click="editMaintenance">
             <el-table-column label="日期" width="110">
               <template #default="{ row }">{{ formatDateOnly(row.date) }}</template>
             </el-table-column>
@@ -81,6 +127,28 @@
               <template #default="{ row }">{{ formatMoney(row.total_cost) }}</template>
             </el-table-column>
           </el-table>
+          <div class="mobile-record-list">
+            <div v-if="maintenancePreview.length" class="record-card-list">
+              <button
+                v-for="row in maintenancePreview"
+                :key="row.maintenance_log_id"
+                class="record-card"
+                type="button"
+                @click="editMaintenance(row)"
+              >
+                <span class="record-card__label">保養紀錄</span>
+                <div class="record-card__header">
+                  <div class="record-card__title">{{ row.item }}</div>
+                  <div class="record-card__value">{{ formatMoney(row.total_cost) }}</div>
+                </div>
+                <div class="record-card__details">
+                  <span>{{ formatDateOnly(row.date) }}</span>
+                  <span>{{ formatKm(row.odometer_km) }}</span>
+                </div>
+              </button>
+            </div>
+            <div v-else class="empty-state">尚無保養紀錄</div>
+          </div>
         </el-card>
       </div>
 
@@ -91,7 +159,7 @@
             <el-button text @click="goRecords('expense')">全部</el-button>
           </div>
         </template>
-        <el-table :data="expensePreview" size="small" @row-click="editExpense">
+        <el-table class="desktop-table" :data="expensePreview" size="small" @row-click="editExpense">
           <el-table-column label="日期" width="110">
             <template #default="{ row }">{{ formatDateOnly(row.date) }}</template>
           </el-table-column>
@@ -103,6 +171,22 @@
             <template #default="{ row }">{{ formatMoney(row.total_price) }}</template>
           </el-table-column>
         </el-table>
+        <div class="mobile-record-list">
+          <div v-if="expensePreview.length" class="record-card-list">
+            <button v-for="row in expensePreview" :key="row.expense_log_id" class="record-card" type="button" @click="editExpense(row)">
+              <span class="record-card__label">費用紀錄</span>
+              <div class="record-card__header">
+                <div class="record-card__title">{{ row.title }}</div>
+                <div class="record-card__value">{{ formatMoney(row.total_price) }}</div>
+              </div>
+              <div class="record-card__details">
+                <span>{{ formatDateOnly(row.date) }}</span>
+                <span>{{ formatKm(row.odometer_km) }}</span>
+              </div>
+            </button>
+          </div>
+          <div v-else class="empty-state">尚無費用紀錄</div>
+        </div>
       </el-card>
 
       <div class="content-grid" style="margin-top: 16px">
@@ -152,7 +236,7 @@
 import { computed, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { ElMessage } from 'element-plus';
-import { Money, Plus, Refresh, Setting, Tickets, Tools } from '@element-plus/icons-vue';
+import { Money, Plus, Postcard, Pouring, Refresh, Setting, Tickets, Tools, Van } from '@element-plus/icons-vue';
 import { apiGet } from '../api/client';
 import ExpensePieChart from '../components/ExpensePieChart.vue';
 import FuelEfficiencyLineChart from '../components/FuelEfficiencyLineChart.vue';
@@ -169,16 +253,19 @@ const fuelLogs = ref<FuelLog[]>([]);
 const maintenanceLogs = ref<MaintenanceLog[]>([]);
 const expenseLogs = ref<ExpenseLog[]>([]);
 const selectedVehicleId = ref('');
+const vehicleImageFailed = ref(false);
 
 const fuelPreview = computed(() => sortFuelLogs(fuelLogs.value).slice(0, 5));
 const maintenancePreview = computed(() => maintenanceLogs.value.slice(0, 5));
 const expensePreview = computed(() => expenseLogs.value.slice(0, 5));
 const emptyExpenseCategoryTotals = { all: [], yearly: [] };
+const showVehicleImage = computed(() => Boolean(data.value?.vehicle?.image_url && !vehicleImageFailed.value));
 
 async function load() {
   loading.value = true;
   try {
     data.value = await apiGet<DashboardData>('dashboard', { vehicle_id: selectedVehicleId.value });
+    vehicleImageFailed.value = false;
     selectedVehicleId.value = data.value.vehicle?.vehicle_id || selectedVehicleId.value;
     fuelLogs.value = data.value.recent_fuel_logs || [];
     maintenanceLogs.value = data.value.recent_maintenance_logs || [];
@@ -220,6 +307,20 @@ function editMaintenance(row: MaintenanceLog) {
 
 function editExpense(row: ExpenseLog) {
   router.push({ name: 'expense-edit', params: { expense_log_id: row.expense_log_id }, query: vehicleQuery() });
+}
+
+function formatVehicleType(type: string) {
+  if (type === 'car') return '汽車';
+  if (type === 'motorcycle') return '機車';
+  return '其他';
+}
+
+function formatFuelType(type: string) {
+  if (type === 'gasoline') return '汽油';
+  if (type === 'diesel') return '柴油';
+  if (type === 'electric') return '電動';
+  if (type === 'hybrid') return '油電';
+  return type;
 }
 
 onMounted(load);

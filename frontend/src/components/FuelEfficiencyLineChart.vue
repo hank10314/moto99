@@ -32,9 +32,14 @@ function renderChart() {
   if (!chartEl.value || !sortedTrend.value.length) return;
   if (!chart) chart = echarts.init(chartEl.value);
   chart.setOption({
-    color: ['#457b9d'],
+    backgroundColor: 'transparent',
+    color: ['#2dd4bf'],
+    textStyle: { color: '#b7c4d8' },
     tooltip: {
       trigger: 'axis',
+      backgroundColor: 'rgba(17, 24, 39, 0.96)',
+      borderColor: 'rgba(148, 163, 184, 0.24)',
+      textStyle: { color: '#edf4ff' },
       formatter: (params: Array<{ dataIndex: number; marker: string; value: number }>) => {
         const index = params[0]?.dataIndex ?? 0;
         const row = sortedTrend.value[index];
@@ -52,11 +57,16 @@ function renderChart() {
     xAxis: {
       type: 'category',
       boundaryGap: false,
-      data: sortedTrend.value.map((row) => formatDateOnly(row.date).slice(5))
+      data: sortedTrend.value.map((row) => formatDateOnly(row.date).slice(5)),
+      axisLine: { lineStyle: { color: 'rgba(148, 163, 184, 0.24)' } },
+      axisLabel: { color: '#96a5bb' }
     },
     yAxis: {
       type: 'value',
+      axisLine: { lineStyle: { color: 'rgba(148, 163, 184, 0.24)' } },
+      splitLine: { lineStyle: { color: 'rgba(148, 163, 184, 0.12)' } },
       axisLabel: {
+        color: '#96a5bb',
         formatter: (value: number) => `${round(value, 1)}`
       }
     },
@@ -75,8 +85,8 @@ function renderChart() {
             x2: 0,
             y2: 1,
             colorStops: [
-              { offset: 0, color: 'rgba(69, 123, 157, 0.28)' },
-              { offset: 1, color: 'rgba(69, 123, 157, 0.02)' }
+              { offset: 0, color: 'rgba(45, 212, 191, 0.28)' },
+              { offset: 1, color: 'rgba(45, 212, 191, 0.02)' }
             ]
           }
         }

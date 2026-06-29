@@ -28,7 +28,7 @@
       <el-header class="topbar">
         <div>
           <strong>{{ pageTitle }}</strong>
-          <span>{{ online ? 'Online' : 'Offline' }}</span>
+          <span :class="['connection-status', online ? 'is-online' : 'is-offline']">{{ online ? 'Online' : 'Offline' }}</span>
         </div>
       </el-header>
       <el-main class="content">

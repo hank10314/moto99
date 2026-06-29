@@ -34,6 +34,11 @@
           <el-input v-model.number="row.tank_capacity_liters" type="number" inputmode="decimal" min="0" />
         </template>
       </el-table-column>
+      <el-table-column label="圖片 URL" min-width="220">
+        <template #default="{ row }">
+          <el-input v-model="row.image_url" placeholder="https://... 或 /picture.jpg" />
+        </template>
+      </el-table-column>
       <el-table-column label="操作" width="120">
         <template #default="{ row }">
           <el-button size="small" :loading="savingVehicleId === row.vehicle_id" @click="saveExistingVehicle(row)">儲存</el-button>
@@ -56,9 +61,15 @@
         <el-col :xs="24" :sm="12">
           <el-form-item label="類型" required>
             <el-select v-model="vehicleForm.type" style="width: 100%">
-              <el-option label="汽車" value="car" />
-              <el-option label="機車" value="motorcycle" />
-              <el-option label="其他" value="other" />
+              <el-option label="汽車" value="car">
+                <span class="option-with-icon"><el-icon><Van /></el-icon>汽車</span>
+              </el-option>
+              <el-option label="機車" value="motorcycle">
+                <span class="option-with-icon"><el-icon><Bicycle /></el-icon>機車</span>
+              </el-option>
+              <el-option label="其他" value="other">
+                <span class="option-with-icon"><el-icon><Grid /></el-icon>其他</span>
+              </el-option>
             </el-select>
           </el-form-item>
         </el-col>
@@ -82,13 +93,30 @@
             <el-input v-model="vehicleForm.plate_no" />
           </el-form-item>
         </el-col>
+        <el-col :xs="24" :sm="16">
+          <el-form-item label="車輛圖片 URL">
+            <el-input v-model="vehicleForm.image_url" placeholder="https://... 或 /picture.jpg">
+              <template #prefix>
+                <el-icon><Picture /></el-icon>
+              </template>
+            </el-input>
+          </el-form-item>
+        </el-col>
         <el-col :xs="24" :sm="8">
           <el-form-item label="能源">
             <el-select v-model="vehicleForm.fuel_type" clearable style="width: 100%">
-              <el-option label="汽油" value="gasoline" />
-              <el-option label="柴油" value="diesel" />
-              <el-option label="電動" value="electric" />
-              <el-option label="油電" value="hybrid" />
+              <el-option label="汽油" value="gasoline">
+                <span class="option-with-icon"><el-icon><Pouring /></el-icon>汽油</span>
+              </el-option>
+              <el-option label="柴油" value="diesel">
+                <span class="option-with-icon"><el-icon><SetUp /></el-icon>柴油</span>
+              </el-option>
+              <el-option label="電動" value="electric">
+                <span class="option-with-icon"><el-icon><Lightning /></el-icon>電動</span>
+              </el-option>
+              <el-option label="油電" value="hybrid">
+                <span class="option-with-icon"><el-icon><Switch /></el-icon>油電</span>
+              </el-option>
             </el-select>
           </el-form-item>
         </el-col>
@@ -121,7 +149,7 @@
 <script setup lang="ts">
 import { onMounted, reactive, ref } from 'vue';
 import { ElMessage } from 'element-plus';
-import { Check, Connection, Plus, Refresh } from '@element-plus/icons-vue';
+import { Check, Connection, Lightning, Picture, Plus, Pouring, Refresh, SetUp, Switch, Van, Bicycle, Grid } from '@element-plus/icons-vue';
 import { apiGet, apiPost, getEndpoint, setEndpoint } from '../api/client';
 import type { Vehicle } from '../types';
 
@@ -137,6 +165,7 @@ const vehicleForm = reactive({
   model: '',
   year: '' as number | '',
   plate_no: '',
+  image_url: '',
   fuel_type: 'gasoline',
   tank_capacity_liters: null as number | null,
   current_odometer: 0,
@@ -169,6 +198,7 @@ function resetVehicleForm() {
   vehicleForm.model = '';
   vehicleForm.year = '';
   vehicleForm.plate_no = '';
+  vehicleForm.image_url = '';
   vehicleForm.fuel_type = 'gasoline';
   vehicleForm.tank_capacity_liters = null;
   vehicleForm.current_odometer = 0;
@@ -203,7 +233,8 @@ async function saveExistingVehicle(vehicle: Vehicle) {
   try {
     await apiPost('updateVehicle', {
       ...vehicle,
-      tank_capacity_liters: vehicle.tank_capacity_liters || ''
+      tank_capacity_liters: vehicle.tank_capacity_liters || '',
+      image_url: vehicle.image_url || ''
     });
     ElMessage.success('已更新車輛油箱容量');
   } catch (error) {

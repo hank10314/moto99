@@ -10,8 +10,11 @@
 
     <el-card class="table-card" shadow="never">
       <el-tabs v-model="activeTab" @tab-change="syncRouteTab">
-        <el-tab-pane label="加油紀錄" name="fuel">
-          <el-table :data="fuelLogsForDisplay" @row-click="editFuel">
+        <el-tab-pane name="fuel">
+          <template #label>
+            <span class="tab-label-with-icon"><el-icon><Pouring /></el-icon>加油紀錄</span>
+          </template>
+          <el-table class="desktop-table" :data="fuelLogsForDisplay" @row-click="editFuel">
             <el-table-column label="日期" width="120">
               <template #default="{ row }">{{ formatDateOnly(row.date) }}</template>
             </el-table-column>
@@ -34,10 +37,30 @@
               <template #default="{ row }">{{ formatNumber(row.display_fuel_consumption_km_l, 1, '-') }}</template>
             </el-table-column>
           </el-table>
+          <div class="mobile-record-list">
+            <div v-if="fuelLogsForDisplay.length" class="record-card-list">
+              <button v-for="row in fuelLogsForDisplay" :key="row.fuel_log_id" class="record-card" type="button" @click="editFuel(row)">
+                <span class="record-card__label">加油紀錄</span>
+                <div class="record-card__header">
+                  <div class="record-card__title">{{ formatDateOnly(row.date) }}</div>
+                  <div class="record-card__value">{{ formatMoney(row.total_price) }}</div>
+                </div>
+                <div class="record-card__details">
+                  <span>{{ formatKm(row.odometer_km) }}</span>
+                  <span>{{ formatLiters(row.liters) }}</span>
+                  <span>{{ formatNumber(row.display_fuel_consumption_km_l, 1, '-') }} km/L</span>
+                </div>
+              </button>
+            </div>
+            <div v-else class="empty-state">尚無加油紀錄</div>
+          </div>
         </el-tab-pane>
 
-        <el-tab-pane label="保養紀錄" name="maintenance">
-          <el-table :data="maintenanceLogs" @row-click="editMaintenance">
+        <el-tab-pane name="maintenance">
+          <template #label>
+            <span class="tab-label-with-icon"><el-icon><Tools /></el-icon>保養紀錄</span>
+          </template>
+          <el-table class="desktop-table" :data="maintenanceLogs" @row-click="editMaintenance">
             <el-table-column label="日期" width="120">
               <template #default="{ row }">{{ formatDateOnly(row.date) }}</template>
             </el-table-column>
@@ -56,10 +79,36 @@
               <template #default="{ row }">{{ formatMoney(row.total_cost) }}</template>
             </el-table-column>
           </el-table>
+          <div class="mobile-record-list">
+            <div v-if="maintenanceLogs.length" class="record-card-list">
+              <button
+                v-for="row in maintenanceLogs"
+                :key="row.maintenance_log_id"
+                class="record-card"
+                type="button"
+                @click="editMaintenance(row)"
+              >
+                <span class="record-card__label">保養紀錄</span>
+                <div class="record-card__header">
+                  <div class="record-card__title">{{ row.item }}</div>
+                  <div class="record-card__value">{{ formatMoney(row.total_cost) }}</div>
+                </div>
+                <div class="record-card__details">
+                  <span>{{ formatDateOnly(row.date) }}</span>
+                  <span>{{ formatKm(row.odometer_km) }}</span>
+                  <span>{{ row.vendor || '未填保養方式' }}</span>
+                </div>
+              </button>
+            </div>
+            <div v-else class="empty-state">尚無保養紀錄</div>
+          </div>
         </el-tab-pane>
 
-        <el-tab-pane label="費用紀錄" name="expense">
-          <el-table :data="expenseLogs" @row-click="editExpense">
+        <el-tab-pane name="expense">
+          <template #label>
+            <span class="tab-label-with-icon"><el-icon><Money /></el-icon>費用紀錄</span>
+          </template>
+          <el-table class="desktop-table" :data="expenseLogs" @row-click="editExpense">
             <el-table-column label="日期" width="120">
               <template #default="{ row }">{{ formatDateOnly(row.date) }}</template>
             </el-table-column>
@@ -71,6 +120,22 @@
               <template #default="{ row }">{{ formatMoney(row.total_price) }}</template>
             </el-table-column>
           </el-table>
+          <div class="mobile-record-list">
+            <div v-if="expenseLogs.length" class="record-card-list">
+              <button v-for="row in expenseLogs" :key="row.expense_log_id" class="record-card" type="button" @click="editExpense(row)">
+                <span class="record-card__label">費用紀錄</span>
+                <div class="record-card__header">
+                  <div class="record-card__title">{{ row.title }}</div>
+                  <div class="record-card__value">{{ formatMoney(row.total_price) }}</div>
+                </div>
+                <div class="record-card__details">
+                  <span>{{ formatDateOnly(row.date) }}</span>
+                  <span>{{ formatKm(row.odometer_km) }}</span>
+                </div>
+              </button>
+            </div>
+            <div v-else class="empty-state">尚無費用紀錄</div>
+          </div>
         </el-tab-pane>
       </el-tabs>
     </el-card>
@@ -81,7 +146,7 @@
 import { computed, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { ElMessage } from 'element-plus';
-import { Plus, Refresh } from '@element-plus/icons-vue';
+import { Money, Plus, Pouring, Refresh, Tools } from '@element-plus/icons-vue';
 import { apiGet } from '../api/client';
 import type { ExpenseLog, FuelLog, MaintenanceLog, Vehicle } from '../types';
 import { formatDateOnly, formatKm, formatLiters, formatMoney, formatNumber, formatPercent } from '../utils/format';

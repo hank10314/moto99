@@ -33,15 +33,21 @@ function renderChart() {
   if (!chartEl.value || !selectedRows.value.length) return;
   if (!chart) chart = echarts.init(chartEl.value);
   chart.setOption({
-    color: ['#2a9d8f', '#e76f51', '#457b9d'],
+    backgroundColor: 'transparent',
+    color: ['#2dd4bf', '#fb7185', '#60a5fa', '#f59e0b', '#a78bfa'],
+    textStyle: { color: '#b7c4d8' },
     tooltip: {
       trigger: 'item',
+      backgroundColor: 'rgba(17, 24, 39, 0.96)',
+      borderColor: 'rgba(148, 163, 184, 0.24)',
+      textStyle: { color: '#edf4ff' },
       formatter: (params: { name: string; value: number; percent: number }) =>
         `${params.name}<br/>${formatMoney(params.value)} (${params.percent.toFixed(1)}%)`
     },
     legend: {
       bottom: 0,
-      icon: 'circle'
+      icon: 'circle',
+      textStyle: { color: '#b7c4d8' }
     },
     series: [
       {
@@ -51,10 +57,11 @@ function renderChart() {
         center: ['50%', '43%'],
         avoidLabelOverlap: true,
         itemStyle: {
-          borderColor: '#fff',
+          borderColor: '#182235',
           borderWidth: 2
         },
         label: {
+          color: '#edf4ff',
           formatter: '{b}\n{d}%'
         },
         data: selectedRows.value.map((row) => ({
