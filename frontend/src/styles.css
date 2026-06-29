@@ -802,6 +802,10 @@ a {
     display: block;
   }
 
+  .dashboard-expense-card {
+    display: none;
+  }
+
   .mobile-actions {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));

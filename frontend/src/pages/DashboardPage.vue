@@ -46,7 +46,6 @@
         <el-button type="primary" :icon="Plus" @click="goNewFuel">新增加油</el-button>
         <el-button type="primary" plain :icon="Tools" @click="goNewMaintenance">新增保養</el-button>
         <el-button :icon="Money" @click="goNewExpense">新增費用</el-button>
-        <el-button :icon="Tickets" @click="goRecords">查看所有紀錄</el-button>
       </div>
 
       <div class="metric-grid">
@@ -91,16 +90,16 @@
             </el-table-column>
           </el-table>
           <div class="mobile-record-list">
-            <div v-if="fuelPreview.length" class="record-card-list">
-              <button v-for="row in fuelPreview" :key="row.fuel_log_id" class="record-card" type="button" @click="editFuel(row)">
+            <div v-if="latestFuelLog" class="record-card-list">
+              <button class="record-card" type="button" @click="editFuel(latestFuelLog)">
                 <span class="record-card__label">加油紀錄</span>
                 <div class="record-card__header">
-                  <div class="record-card__title">{{ formatDateOnly(row.date) }}</div>
-                  <div class="record-card__value">{{ formatMoney(row.total_price) }}</div>
+                  <div class="record-card__title">{{ formatDateOnly(latestFuelLog.date) }}</div>
+                  <div class="record-card__value">{{ formatMoney(latestFuelLog.total_price) }}</div>
                 </div>
                 <div class="record-card__details">
-                  <span>{{ formatKm(row.odometer_km) }}</span>
-                  <span>{{ formatLiters(row.liters) }}</span>
+                  <span>{{ formatKm(latestFuelLog.odometer_km) }}</span>
+                  <span>{{ formatLiters(latestFuelLog.liters) }}</span>
                 </div>
               </button>
             </div>
@@ -128,22 +127,16 @@
             </el-table-column>
           </el-table>
           <div class="mobile-record-list">
-            <div v-if="maintenancePreview.length" class="record-card-list">
-              <button
-                v-for="row in maintenancePreview"
-                :key="row.maintenance_log_id"
-                class="record-card"
-                type="button"
-                @click="editMaintenance(row)"
-              >
+            <div v-if="latestMaintenanceLog" class="record-card-list">
+              <button class="record-card" type="button" @click="editMaintenance(latestMaintenanceLog)">
                 <span class="record-card__label">保養紀錄</span>
                 <div class="record-card__header">
-                  <div class="record-card__title">{{ row.item }}</div>
-                  <div class="record-card__value">{{ formatMoney(row.total_cost) }}</div>
+                  <div class="record-card__title">{{ latestMaintenanceLog.item }}</div>
+                  <div class="record-card__value">{{ formatMoney(latestMaintenanceLog.total_cost) }}</div>
                 </div>
                 <div class="record-card__details">
-                  <span>{{ formatDateOnly(row.date) }}</span>
-                  <span>{{ formatKm(row.odometer_km) }}</span>
+                  <span>{{ formatDateOnly(latestMaintenanceLog.date) }}</span>
+                  <span>{{ formatKm(latestMaintenanceLog.odometer_km) }}</span>
                 </div>
               </button>
             </div>
@@ -152,7 +145,7 @@
         </el-card>
       </div>
 
-      <el-card class="table-card" shadow="never" style="margin-top: 16px">
+      <el-card class="table-card dashboard-expense-card" shadow="never" style="margin-top: 16px">
         <template #header>
           <div class="maintenance-header">
             <strong>最近費用</strong>
@@ -236,7 +229,7 @@
 import { computed, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { ElMessage } from 'element-plus';
-import { Money, Plus, Postcard, Pouring, Refresh, Setting, Tickets, Tools, Van } from '@element-plus/icons-vue';
+import { Money, Plus, Postcard, Pouring, Refresh, Setting, Tools, Van } from '@element-plus/icons-vue';
 import { apiGet } from '../api/client';
 import ExpensePieChart from '../components/ExpensePieChart.vue';
 import FuelEfficiencyLineChart from '../components/FuelEfficiencyLineChart.vue';
@@ -258,6 +251,8 @@ const vehicleImageFailed = ref(false);
 const fuelPreview = computed(() => sortFuelLogs(fuelLogs.value).slice(0, 5));
 const maintenancePreview = computed(() => maintenanceLogs.value.slice(0, 5));
 const expensePreview = computed(() => expenseLogs.value.slice(0, 5));
+const latestFuelLog = computed(() => fuelPreview.value[0]);
+const latestMaintenanceLog = computed(() => maintenancePreview.value[0]);
 const emptyExpenseCategoryTotals = { all: [], yearly: [] };
 const showVehicleImage = computed(() => Boolean(data.value?.vehicle?.image_url && !vehicleImageFailed.value));
 
